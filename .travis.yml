@@ -3,6 +3,9 @@ language: java
 jdk:
  - oraclejdk14
 
+services:
+  - redis-server
+
 script: 
   - cd ./ocsen
   - ./mvnw test -B
