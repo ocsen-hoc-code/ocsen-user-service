@@ -11,4 +11,5 @@ before_install:
 
 script: 
   - cd ./ocsen
-  - ./mvnw test -B
+  - ./mvnw install
+  # - ./mvnw test -B
