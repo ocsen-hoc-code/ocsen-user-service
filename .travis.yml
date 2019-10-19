@@ -1,0 +1,8 @@
+language: java
+
+jdk:
+ - oraclejdk14
+
+script: 
+  - cd ./ocsen
+  - ./mvnw test -B
