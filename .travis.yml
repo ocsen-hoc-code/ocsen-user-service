@@ -6,6 +6,9 @@ jdk:
 services:
   - redis-server
 
+before_script:
+  - sleep 120
+
 script: 
   - cd ./ocsen
   - ./mvnw test -B
