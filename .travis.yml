@@ -3,6 +3,8 @@ language: java
 jdk:
  - oraclejdk14
 
+sudo: required
+
 services:
   - redis-server
 
