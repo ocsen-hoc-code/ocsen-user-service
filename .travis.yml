@@ -1,0 +1,18 @@
+language: java
+
+jdk:
+ - oraclejdk14
+
+sudo: required
+
+dist: xenial
+
+services:
+  - redis-server
+
+before_install:
+   sudo service redis-server start --bind 127.0.0.1
+
+script: 
+  - cd ./ocsen
+  - mvn test

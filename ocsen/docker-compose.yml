@@ -17,138 +17,136 @@ services:
     networks:
       - ocsen-microservice
 
-  #PostgresqlAdmin
-  pgAdmin:
-    container_name: pgAdmin_container
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - 5050:80
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    depends_on:
-      - postgresql
-    networks:
-      - ocsen-microservice
-
-  #Redis
-  redis:
-    container_name: redis_container
-    image: 'bitnami/redis:latest'
-    environment:
-      - REDIS_PASSWORD=ocsen-redis
-    ports:
-      - 6379:6379
-    volumes:
-      - redis-config:/opt/bitnami/redis/etc/redis.conf
-      - redis-data:/bitnami/redis/data
-    networks:
-      - ocsen-microservice
-      
-  # MongoDB: https://hub.docker.com/_/mongo/
-  mongodb:
-    container_name: mongodb_container
-    image: mongo:3
-    volumes:
-      - mongo-data:/data/db
-    ports:
-      - 27017:27017
-      - 27018:27018
-      - 27019:27019
-    networks:
-      - ocsen-microservice
-
-  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/6.x/docker.html
-  elasticsearch:
-    container_name: es_container
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    environment:
-      - http.host=0.0.0.0
-      - transport.host=localhost
-      - network.host=0.0.0.0
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-      # - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - ocsen-microservice
-
-  # Graylog: https://hub.docker.com/r/graylog/graylog/
-  graylog:
-    container_name: graylog_container
-    image: graylog/graylog:3.1
-    volumes:
-      - graylog-journal:/usr/share/graylog/data/journal
-    environment:
-      # CHANGE ME (must be at least 16 characters)!
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      # Password: admin
-      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      # - GRAYLOG_WEB_ENDPOINT_URI=http://127.0.0.1:9000/api
-      -  GRAYLOG_HTTP_EXTERNAL_URI=http://elasticsearch:9000/
-    # links:
-    #   - mongodb:mongo
-    #   - elasticsearch
-    depends_on:
-      - mongodb
-      - elasticsearch
-    ports:
-      # Graylog web interface and REST API
-      - 9000:9000
-      # Syslog TCP
-      - 1514:1514
-      # Syslog UDP
-      - 1514:1514/udp
-      # GELF TCP
-      - 12201:12201
-      # GELF UDP
-      - 12201:12201/udp
-      - 9099:9099/udp
-    networks:
-      - ocsen-microservice
-
-  # ocsen-user-service:
-  #   container_name: ocsen_user_service_container
-  #   image: ocsen-user-service:latest
+  # #PostgresqlAdmin
+  # pgAdmin:
+  #   container_name: pgAdmin_container
+  #   image: dpage/pgadmin4:latest
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
   #   ports:
-  #     - 8080:8080
-  #     # If you want use devtools
-  #     # - 8000:8000
+  #     - 5050:80
   #   volumes:
-  #     - .:/app
+  #     - pgadmin:/var/lib/pgadmin
   #   depends_on:
-  #     - mongodb
-  #     - elasticsearch
-  #     - graylog
-  #     - redis
   #     - postgresql
   #   networks:
   #     - ocsen-microservice
 
+  #Redis
+  redis:
+    container_name: redis_container
+    image: redis:5.0.6
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    entrypoint: redis-server --appendonly yes --requirepass "ocsen-redis" 
+    networks:
+      - ocsen-microservice
+      
+  # # MongoDB: https://hub.docker.com/_/mongo/
+  # mongodb:
+  #   container_name: mongodb_container
+  #   image: mongo:3
+  #   volumes:
+  #     - mongo-data:/data/db
+  #   ports:
+  #     - 27017:27017
+  #     - 27018:27018
+  #     - 27019:27019
+  #   networks:
+  #     - ocsen-microservice
+
+  # # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/6.x/docker.html
+  # elasticsearch:
+  #   container_name: es_container
+  #   image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
+  #   volumes:
+  #     - es-data:/usr/share/elasticsearch/data
+  #   environment:
+  #     - http.host=0.0.0.0
+  #     - transport.host=localhost
+  #     - network.host=0.0.0.0
+  #     - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+  #     # - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   ports:
+  #     - 9200:9200
+  #     - 9300:9300
+  #   networks:
+  #     - ocsen-microservice
+
+  # # Graylog: https://hub.docker.com/r/graylog/graylog/
+  # graylog:
+  #   container_name: graylog_container
+  #   image: graylog/graylog:3.1
+  #   volumes:
+  #     - graylog-journal:/usr/share/graylog/data/journal
+  #   environment:
+  #     # CHANGE ME (must be at least 16 characters)!
+  #     - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+  #     # Password: admin
+  #     - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+  #     # - GRAYLOG_WEB_ENDPOINT_URI=http://127.0.0.1:9000/api
+  #     -  GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+  #   links:
+  #     - mongodb:mongo
+  #     - elasticsearch
+  #   depends_on:
+  #     - mongodb
+  #     - elasticsearch
+  #   ports:
+  #     # Graylog web interface and REST API
+  #     - 9000:9000
+  #     # Syslog TCP
+  #     - 1514:1514
+  #     # Syslog UDP
+  #     - 1514:1514/udp
+  #     # GELF TCP
+  #     - 12201:12201
+  #     # GELF UDP
+  #     - 12201:12201/udp
+  #     - 9099:9099/udp
+  #   networks:
+  #     - ocsen-microservice
+  
+  # Ocsen user Service
+  ocsen-user-service:
+    container_name: ocsen_user_service_container
+    image: ocsen-user-service:latest
+    ports:
+      - 8081:8080
+      # If you want use devtools
+      # - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      # - mongodb
+      # - elasticsearch
+      # - graylog
+      - redis
+      - postgresql
+    networks:
+      - ocsen-microservice
+
 volumes:
   postgres-data:
     driver: local
-  pgadmin:
-    driver: local
-  redis-config:
-    driver: local
   redis-data:
     driver: local
-  mongo-data:
-    driver: local
-  es-data:
-    driver: local
-  graylog-journal:
-    driver: local
+  # pgadmin:
+  #   driver: local
+  # mongo-data:
+  #   driver: local
+  # es-data:
+  #   driver: local
+  # graylog-journal:
+  #   driver: local
 
 networks:
   ocsen-microservice:
