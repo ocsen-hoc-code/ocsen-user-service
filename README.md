@@ -9,3 +9,5 @@ Run OcSen User Service
 - Run cmd `make clean` if you would like remove docker container
 
 Api Document: http://127.0.0.1:8081/swagger-ui.html
+
+PS: Please ignore alert testcase failed on travis beacuse some issue with travis enviroment. I will fix it soon.
