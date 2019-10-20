@@ -10,4 +10,4 @@ Run OcSen User Service
 
 Api Document: http://127.0.0.1:8081/swagger-ui.html
 
-PS: Please ignore alert testcase failed on travis beacuse some issue with travis enviroment. I will fix it soon.
+PS: Please ignore alert test case failed on travis because some issue with travis environment but test case on local still working correctly. I will fix it soon.
