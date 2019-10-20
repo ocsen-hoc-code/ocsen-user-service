@@ -5,6 +5,8 @@ jdk:
 
 sudo: required
 
+dist: trusty
+
 services:
   - redis-server
 
