@@ -120,14 +120,12 @@ services:
     container_name: ocsen_user_service_container
     image: ocsen-user-service:latest
     ports:
-      - 8081:8080
+      - 8081:8081
       # If you want use devtools
       # - 8000:8000
     volumes:
       - .:/app
     depends_on:
-      # - mongodb
-      # - elasticsearch
       # - graylog
       - redis
       - postgresql
