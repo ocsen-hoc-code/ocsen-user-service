@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ocsen.userservice.models.ocsen.FilterResponse;
 import org.ocsen.userservice.models.ocsen.JwtResult;
 import org.ocsen.userservice.models.ocsen.User;
 import org.ocsen.userservice.repositories.UserCacheRepository;
@@ -24,6 +25,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebFilter(urlPatterns = { "/v1.0/*" })
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -36,8 +39,10 @@ public class JwtFilter implements Filter {
 	@Autowired
 	private UserCacheRepository userCacheRepository;
 
-	private final String MISSING_AUTHORIZATION = "Missing Authorization!";
-	private final String ACCESS_DENIED = "Access Denied!ss";
+	private ObjectMapper mapper = new ObjectMapper();
+
+	public final static String MISSING_AUTHORIZATION = "Missing Authorization!";
+	public final static String ACCESS_DENIED = "Access Denied!";
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -50,7 +55,7 @@ public class JwtFilter implements Filter {
 			String token = getTokenFromRequest(req);
 
 			if (null == token) {
-				responseFilter(req, res, HttpStatus.UNAUTHORIZED, this.MISSING_AUTHORIZATION);
+				responseFilter(req, res, HttpStatus.UNAUTHORIZED, MISSING_AUTHORIZATION);
 			} else {
 				JwtResult jwtResult = jwtProvider.verify(token);
 
@@ -80,7 +85,7 @@ public class JwtFilter implements Filter {
 
 		} catch (Exception ex) {
 			log.error(ex);
-			responseFilter(req, res, HttpStatus.FORBIDDEN, this.ACCESS_DENIED);
+			responseFilter(req, res, HttpStatus.FORBIDDEN, ACCESS_DENIED);
 		}
 
 	}
@@ -98,10 +103,12 @@ public class JwtFilter implements Filter {
 	private void responseFilter(HttpServletRequest request, HttpServletResponse response, HttpStatus status,
 			String message) {
 		try {
+
 			response.setStatus(status.value());
 			response.setContentType("application/json; charset=utf-8");
-			response.getWriter().write("{\"Code\":" + status.value() + ",\"mesage:\":\"" + message + "\",\"path\":\""
-					+ request.getRequestURI() + "\"}");
+			response.getWriter().write(
+					mapper.writeValueAsString(new FilterResponse(status.value(), message, request.getRequestURI())));
+
 		} catch (IOException ex) {
 			log.error(ex);
 		}

@@ -21,11 +21,11 @@ public class Token implements Serializable {
 	private Date expired;
 
 	public Token(String token) {
-		this.token = "Bearer " + token;
+		this.token = token;
 	}
 
 	public Token(String token, Date createAt, Date expired) {
-		this.token = "Bearer " + token;
+		this.token = token;
 		this.createAt = createAt;
 		this.expired = expired;
 	}

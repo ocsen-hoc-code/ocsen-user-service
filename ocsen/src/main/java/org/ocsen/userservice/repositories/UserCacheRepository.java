@@ -35,6 +35,10 @@ public class UserCacheRepository {
 		}
 	}
 
+	public void delete(User user) {
+		userRedisTemplate.delete(user.getId().toString());
+	}
+
 	private void add(User user, UUID value) {
 		userRedisTemplate.opsForValue().setIfAbsent(user.getId().toString(), value.toString());
 		userRedisTemplate.expireAt(user.getId().toString(), new Date(new Date().getTime() + expiration));
@@ -45,7 +49,4 @@ public class UserCacheRepository {
 		userRedisTemplate.expireAt(user.getId().toString(), new Date(new Date().getTime() + expiration));
 	}
 
-	public void delete(User user) {
-		userRedisTemplate.delete(user.getId().toString());
-	}
 }
