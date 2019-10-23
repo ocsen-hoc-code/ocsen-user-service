@@ -64,7 +64,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	public void VerifyFacebookTokenUnsuccessTest() {		
+	public void VerifyFacebookTokenFailedTest() {		
 		when(restTemplate.getForObject(UserService.facebookUrlV4 + faceBookToken, FBUser.class)).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 		
 		try {			
