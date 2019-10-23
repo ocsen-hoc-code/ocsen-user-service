@@ -1,35 +1,32 @@
 package org.ocsen.userservice.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
-
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.ocsen.userservice.models.facebook.FBData;
 import org.ocsen.userservice.models.facebook.FBPicture;
 import org.ocsen.userservice.models.facebook.FBUser;
 import org.ocsen.userservice.models.ocsen.User;
-import org.ocsen.userservice.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest
 @ActiveProfiles("test")
 public class UserServiceTest {
-	@Mock
+	@MockBean
 	private RestTemplate restTemplate;
-	@Mock
-	private UserRepository userRepository;
-	@InjectMocks
-	private UserService userService = new UserService();
+	@Autowired
+	private UserService userService;
 
-	private static String token = "I-would-like-find-a-good-job";
+	private static String faceBookToken = "I-would-like-find-a-good-job";
 
 	private FBUser fb;
 	private User user;
@@ -46,21 +43,35 @@ public class UserServiceTest {
 		this.fb.setId(1234567890);
 		this.fb.setName("Minh Dep Trai");
 		this.fb.setPicture(picture);
-
 		this.user = new User(Long.toString(fb.getId()), fb.getName(), fb.getPicture().getData().getUrl(), "facebook");
-		this.user.setId(UUID.randomUUID());
 	}
 
 	@Test
-	public void VerifyFacebookTokenSuccessTest() {
-		when(userRepository.findByUserIDAndType(Long.toString(fb.getId()), "facebook")).thenReturn(user);
-		when(userRepository.save(ArgumentMatchers.any(User.class))).thenReturn(user);
-		when(restTemplate.getForObject(UserService.facebookUrlV4 + token, FBUser.class)).thenReturn(fb);
+	public void VerifyFacebookTokenSuccessTest() {		
+		when(restTemplate.getForObject(UserService.facebookUrlV4 + faceBookToken, FBUser.class)).thenReturn(fb);
 		try {
-			User result = userService.VerifyFacebookToken(token);
-			assertEquals(user, result);
+			User result = userService.VerifyFacebookToken(faceBookToken);
+			
+			assertNotNull(result);
+			assertEquals(user.getUserID(), result.getUserID());
+			assertEquals(user.getAvatar(), result.getAvatar());
+			assertEquals(user.getName(), result.getName());
+			assertEquals(user.getType(), result.getType());
+			
 		} catch (Exception e) {
 
+		}
+	}
+	
+	@Test
+	public void VerifyFacebookTokenUnsuccessTest() {		
+		when(restTemplate.getForObject(UserService.facebookUrlV4 + faceBookToken, FBUser.class)).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+		
+		try {			
+			userService.VerifyFacebookToken(faceBookToken);
+			
+		} catch (Exception e) {
+			assertEquals(e.getMessage(), "Verify failed!");
 		}
 	}
 }

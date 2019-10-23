@@ -61,7 +61,7 @@ public class JwtProvider {
 			byte[] hashInBytes = md.digest(serectKey.getBytes(StandardCharsets.UTF_8));
 			claims.put("uuid", id);
 			claims.put("user", user);
-			String token = Jwts.builder().setClaims(claims).setIssuedAt(now).setExpiration(expiryDate)
+			String token = "Bearer " + Jwts.builder().setClaims(claims).setIssuedAt(now).setExpiration(expiryDate)
 					.signWith(SignatureAlgorithm.HS512, hashInBytes).compact();
 			return new Token(token, now, expiryDate);
 		} catch (Exception ex) {

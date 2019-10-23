@@ -13,10 +13,12 @@ import org.springframework.web.client.RestTemplate;
 public class UserService {
 
 	private static final Logger log = LogManager.getLogger(UserService.class);
+	
 	@Autowired
 	private UserRepository userRepository;
 
-	private RestTemplate restTemplate = new RestTemplate();
+	@Autowired
+	private RestTemplate restTemplate;
 
 	public static final String facebookUrlV4 = "https://graph.facebook.com/v4.0/me?fields=id,name,picture.width(720).height(720)&access_token=";
 

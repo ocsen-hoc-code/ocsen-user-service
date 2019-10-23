@@ -23,8 +23,8 @@ import io.swagger.annotations.ApiResponses;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-public class UserManagerController {
-	private static final Logger log = LogManager.getLogger(UserManagerController.class);
+public class UserManageController {
+	private static final Logger log = LogManager.getLogger(UserManageController.class);
 
 	@Autowired
 	private UserService userService;
