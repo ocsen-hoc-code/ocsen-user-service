@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 public class BaseTest {
 
 	protected static String urlLogin = "/facebook?token=";
+	protected static String urlLogout = "/v1.0/logout";
 	protected static String urlTestPermision = "/v1.0/test";
 
 	@MockBean
@@ -38,7 +39,7 @@ public class BaseTest {
 	@Autowired
 	protected TestRestTemplate template;
 	@Autowired
-	protected JwtProvider JwtProvider;
+	protected JwtProvider jwtProvider;
 
 	protected Map<String, FBUser> tokenMapper = new HashMap<String, FBUser>();
 	protected Map<String, UUID> redisMapper = new HashMap<String, UUID>();
