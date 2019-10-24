@@ -4,17 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
-
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -111,12 +106,12 @@ public class JwtProviderTest {
 	@Test
 	public void jwtVerifyUnsupportTest() {
 		JwtResult jwtResult = jwtProvider.verify("");
-		
+
 		assertEquals(JwtProvider.UNSUPPORTED_CODE, jwtResult.getCode());
 		assertNull(jwtResult.getClaims());
-		
+
 		jwtResult = jwtProvider.verify("01234567890123456789");
-		
+
 		assertEquals(JwtProvider.INVALID_CODE, jwtResult.getCode());
 		assertNull(jwtResult.getClaims());
 	}
@@ -126,7 +121,7 @@ public class JwtProviderTest {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + expiration);
 		Key key = RsaProvider.generateKeyPair(4096).getPrivate();
-		
+
 		String jwt = Jwts.builder().setClaims(null).setExpiration(expiryDate).signWith(SignatureAlgorithm.RS512, key)
 				.compact();
 
