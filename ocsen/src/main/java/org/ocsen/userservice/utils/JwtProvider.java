@@ -36,19 +36,25 @@ public class JwtProvider {
 	@Value("${jwt.expiration}")
 	private long expiration = 10000L;
 
+	private static final int minimumLengthSupport = 20;
+
+	// Define algorithm encrypt and decrypt Jwt (Json Web Token)
+	private static final String algorithm = "SHA-512";
+
+	// Constant Code Massage
 	public static final int VERIFY_SUSSCESS_CODE = 0;
 	public static final int INVALID_CODE = 1;
 	public static final int EXPIRED_CODE = 2;
 	public static final int UNSUPPORTED_CODE = 3;
-	public static final int CLAIMS_EMPTY_CODE = 4;
+	public static final int ILLEGAL_ARGUMENT_CODE = 4;
 	public static final int UNKNOW_CODE = 5;
 
-	// Constant Message
+	// Constant Content Message
 	public static final String VERIFY_SUSSCESS_MESSAGE = "Verify Susscess";
 	public static final String INVALID_MESSAGE = "Invalid JWT token";
 	public static final String EXPIRED_MESSAGE = "Expired JWT token";
 	public static final String UNSUPPORTED_MESSAGE = "Unsupported JWT token";
-	public static final String CLAIMS_EMPTY_MESSAGE = "JWT string is empty";
+	public static final String ILLEGAL_ARGUMENT_MESSAGE = "JWT have illegal argument";
 	public static final String UNKNOW_MESSAGE = "Unknow Exception";
 
 	@SuppressWarnings("deprecation")
@@ -57,7 +63,7 @@ public class JwtProvider {
 		Date expiryDate = new Date(now.getTime() + expiration);
 		Map<String, Object> claims = new HashMap<String, Object>();
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-512");
+			MessageDigest md = MessageDigest.getInstance(algorithm);
 			byte[] hashInBytes = md.digest(serectKey.getBytes(StandardCharsets.UTF_8));
 			claims.put("uuid", id);
 			claims.put("user", user);
@@ -109,9 +115,11 @@ public class JwtProvider {
 	}
 
 	public Claims getClaimsFromToken(String token) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-512");
+		MessageDigest md = MessageDigest.getInstance(algorithm);
 		byte[] hashInBytes = md.digest(serectKey.getBytes(StandardCharsets.UTF_8));
-
+		if (token.length() < minimumLengthSupport) {
+			throw new UnsupportedJwtException("Not support JWT empty");
+		}
 		return Jwts.parser().setSigningKey(hashInBytes).parseClaimsJws(token).getBody();
 	}
 
@@ -125,8 +133,8 @@ public class JwtProvider {
 			return EXPIRED_MESSAGE;
 		case UNSUPPORTED_CODE:
 			return UNSUPPORTED_MESSAGE;
-		case CLAIMS_EMPTY_CODE:
-			return CLAIMS_EMPTY_MESSAGE;
+		case ILLEGAL_ARGUMENT_CODE:
+			return ILLEGAL_ARGUMENT_MESSAGE;
 		default:
 			return UNKNOW_MESSAGE;
 		}
@@ -146,13 +154,22 @@ public class JwtProvider {
 		} catch (UnsupportedJwtException unsupportException) {
 			log.error(unsupportException);
 			return new JwtResult(null, UNSUPPORTED_CODE);
-		} catch (IllegalArgumentException emptyClaimException) {
-			log.error(emptyClaimException);
-			return new JwtResult(null, CLAIMS_EMPTY_CODE);
+		} catch (IllegalArgumentException illegalArgumentException) {
+			log.error(illegalArgumentException);
+			return new JwtResult(null, ILLEGAL_ARGUMENT_CODE);
 		} catch (Exception unknowException) {
 			log.error(unknowException);
 			return new JwtResult(null, UNKNOW_CODE);
 		}
 
 	}
+
+	public void setSerectKey(String serectKey) {
+		this.serectKey = serectKey;
+	}
+
+	public void setExpiration(long expiration) {
+		this.expiration = expiration;
+	}
+
 }
